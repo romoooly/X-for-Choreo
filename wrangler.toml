@@ -1,0 +1,14 @@
+name = "telegram-gemini-bot"
+main = "index.js"
+compatibility_date = "2024-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Environment variables (set these using wrangler secret put)
+# TELEGRAM_BOT_TOKEN - Your Telegram Bot Token from @BotFather
+# GEMINI_API_KEY - Your Google Gemini API Key
+
+[env.production]
+name = "telegram-gemini-bot"
+
+[env.staging]
+name = "telegram-gemini-bot-staging"
