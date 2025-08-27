@@ -1,120 +1,203 @@
-# X for Choreo
-在没有公网的平台挖啊挖啊挖，Argo打通各式服务连接千万家。
+# Gemini Chatbot for Telegram - Cloudflare Workers
 
-* * *
+A powerful AI chatbot that integrates Google's Gemini AI with Telegram, built on Cloudflare Workers for high performance and global reach.
 
-# 目录
+## Features
 
-- [项目特点](README.md#项目特点)
-- [部署](README.md#部署)
-- [Argo Json 的获取](README.md#argo-json-的获取)
-- [Argo Token 的获取](README.md#argo-token-的获取)
-- [TTYD webssh 的原理](README.md#ttyd-webssh-的原理)
-- [鸣谢下列作者的文章和项目](README.md#鸣谢下列作者的文章和项目)
-- [免责声明](README.md#免责声明)
+- 🤖 **AI-Powered Responses**: Uses Google's Gemini Pro model for intelligent conversations
+- 📱 **Telegram Integration**: Seamless integration with Telegram Bot API
+- ⚡ **Cloudflare Workers**: Fast, serverless deployment with global edge locations
+- 🔒 **Safety Features**: Built-in content filtering and safety settings
+- 📝 **Command Support**: Built-in commands like `/start` and `/help`
+- 🚀 **Easy Deployment**: Simple setup and deployment process
 
-* * *
+## Prerequisites
 
-## 项目特点:
-* 使用 CloudFlare 的 Argo 隧道，同时兼容 Json / token / 临时 三种方式认证，使用TLS加密通信，可以将应用程序流量安全地传输到Cloudflare网络，提高了应用程序的安全性和可靠性。此外，Argo Tunnel也可以防止IP泄露和DDoS攻击等网络威胁
-* 解锁 chatGPT
-* 在浏览器查看系统各项信息，方便直观
-* 集成哪吒探针，可以自由选择是否安装，支持 SSL/TLS 模式，适配 Nezha over Argo 项目: https://github.com/fscarmen2/Argo-Nezha-Service-Container
-* uuid，WS 路径既可以自定义，又或者使用默认值
-* 前端 js 定时和 pm2 配合保活，务求让恢复时间减到最小
-* 节点信息以 V2rayN / Clash / 小火箭 链接方式输出
-* 可以使用浏览器访问，使用 ttyd，ssh over http2
-* 项目路径 `https://github.com/fscarmen2/X-for-Choreo`
+Before you begin, you'll need:
 
-## 部署:
-* 注册 [Choreo](https://console.choreo.dev/) ，支持 GitHub / Google / Microsoft 账号进行登录，请使用以下地址注册并进行登录。
+1. **Google Cloud Project** with Gemini API enabled
+2. **Telegram Bot Token** from [@BotFather](https://t.me/botfather)
+3. **Cloudflare Account** with Workers enabled
+4. **Node.js** (version 16 or higher)
 
-* PaaS 平台设置的环境变量
-  | 变量名        | 备注 |
-  | ------------ |  ------ |
-  | UUID         | 可在线生成 https://www.zxgj.cn/g/uuid |
-  | WSPATH       | 勿以 / 开头，各协议路径为 `/WSPATH-协议`，如 `/argo-vless`,`/argo-vmess`,`/argo-trojan`,`/argo-shadowsocks` |
-  | NEZHA_SERVER | 哪吒探针与面板服务端数据通信的IP或域名 |
-  | NEZHA_PORT   | 哪吒探针服务端的端口 |
-  | NEZHA_KEY    | 哪吒探针客户端专用 Key |
-  | NEZHA_TLS    | 哪吒探针是否启用 SSL/TLS 加密 ，如不启用不要该变量，如要启用填"1" |
-  | ARGO_AUTH    | Argo 的 Token 或者 json 值 |
-  | ARGO_DOMAIN  | Argo 的域名，须与 ARGO_DOMAIN 必需一起填了才能生效 |
-  | WEB_DOMAIN   | 网址地址，用于查看节点信息和系统状态 |
-  | WEB_USERNAME | 网页和 webssh 的用户名 |
-  | WEB_PASSWORD | 网页和 webssh 的密码 |
-  | SSH_DOMAIN   | webssh 的域名，用户名和密码就是 <WEB_USERNAME> 和 <WEB_PASSWORD> |
+## Setup Instructions
 
-* 路径（path）
-  | 命令 | 说明 |
-  | ---- |------ |
-  | <WEB_DOMAIN>/list | 查看节点数据 |
-  | <WEB_DOMAIN>/status | 查看后台进程 |
-  | <WEB_DOMAIN>/listen | 查看后台监听端口 |
-  | <WEB_DOMAIN>/test   | 测试是否为只读系统 |
+### 1. Get Gemini API Key
 
-* 修改 github 项目里的 `Dockerfile` ，把变量处理好
-  
- <img width="1141" alt="image" src="https://user-images.githubusercontent.com/92626977/236611535-570495e6-ecdc-4c61-8df9-aae3ebe8a66f.png">
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Copy the API key for later use
 
-* Choreo 设置
+### 2. Create Telegram Bot
 
-<img width="1037" alt="image" src="https://user-images.githubusercontent.com/92626977/236611678-e9ee0a82-efe3-4a21-ab4a-fc16d3d1fa1b.png">
-  
-<img width="647" alt="image" src="https://user-images.githubusercontent.com/92626977/236611722-fb60f8be-c5cd-43d8-9ed1-c1f00694d1e1.png">
+1. Message [@BotFather](https://t.me/botfather) on Telegram
+2. Send `/newbot` command
+3. Follow the instructions to create your bot
+4. Copy the bot token for later use
 
-<img width="700" alt="image" src="https://user-images.githubusercontent.com/92626977/236611875-f1164bf7-1bdf-4c06-a693-ca3e7b600364.png">
+### 3. Configure Environment Variables
 
-<img width="1638" alt="image" src="https://user-images.githubusercontent.com/92626977/236611941-2760746e-0ae3-40a8-be64-d2974e4f0a84.png">
+Edit the `wrangler.toml` file and replace the placeholder values:
 
-<img width="1680" alt="image" src="https://user-images.githubusercontent.com/92626977/236612065-2af3d69b-3ea2-4f79-bc33-6ddba2b03638.png">
-
-<img width="1506" alt="image" src="https://user-images.githubusercontent.com/92626977/236612104-b3d4fa86-4111-4e5d-b672-3458ad440e9c.png">
-
-<img width="1151" alt="image" src="https://user-images.githubusercontent.com/92626977/236612474-065ddf6e-9d44-4d8c-b237-2f2623c8856f.png">
-
-<img width="997" alt="image" src="https://user-images.githubusercontent.com/92626977/236612512-31fb24d6-e3b1-48a0-bfa9-165cb122d311.png">
-
-<img width="331" alt="image" src="https://user-images.githubusercontent.com/92626977/236612116-97fa6072-ad5b-4a61-8906-8d9b9153327d.png">
-
-<img width="579" alt="image" src="https://user-images.githubusercontent.com/92626977/236612319-7071bc1a-e60e-4fe0-8a37-765133adca71.png">
-
-  
-## Argo Json 的获取
-
-用户可以通过 Cloudflare Json 生成网轻松获取: https://fscarmen.cloudflare.now.cc
-
-<img width="763" alt="image" src="https://user-images.githubusercontent.com/92626977/236611088-5c380ae6-4558-4e53-bc5a-ef1a44388c69.png">
-
-<img width="1636" alt="image" src="https://user-images.githubusercontent.com/92626977/236611051-910b753d-77f2-423c-8941-9ef5b0e64316.png">
-  
-如想手动，可以参考，以 Debian 为例，需要用到的命令，[Deron Cheng - CloudFlare Argo Tunnel 试用](https://zhengweidong.com/try-cloudflare-argo-tunnel)
-
-
-## Argo Token 的获取
-
-详细教程: [群晖套件：Cloudflare Tunnel 内网穿透中文教程 支持DSM6、7](https://imnks.com/5984.html)
-
-<img width="1393" alt="image" src="https://user-images.githubusercontent.com/92626977/236611164-dc7d8c98-b742-485a-b6f1-aba88793ef59.png">
-
-<img width="1660" alt="image" src="https://user-images.githubusercontent.com/92626977/236611259-273f2486-9c08-408c-83f9-40235103c706.png">
-
-
-## TTYD webssh 的原理
-
-```
-+---------+     argo     +---------+     http     +--------+    ssh    +-----------+
-| browser | <==========> | CF edge | <==========> |  ttyd  | <=======> | ssh server|
-+---------+     argo     +---------+   websocket  +--------+    ssh    +-----------+
+```toml
+[vars]
+GEMINI_API_KEY = "your-actual-gemini-api-key"
+TELEGRAM_BOT_TOKEN = "your-actual-telegram-bot-token"
+DEBUG = "false"
 ```
 
+### 4. Install Dependencies
 
-## 鸣谢下列作者的文章和项目:
+```bash
+npm install
+```
 
-* Nike Jeff 的 trojan 项目: https://github.com/hrzyang/glitch-trojan
-* Hifeng 的博客: https://www.hicairo.com/post/62.html
+### 5. Deploy to Cloudflare Workers
 
+```bash
+# Deploy to production
+npm run deploy
 
-## 免责声明:
-* 本程序仅供学习了解, 非盈利目的，请于下载后 24 小时内删除, 不得用作任何商业用途, 文字、数据及图片均有所属版权, 如转载须注明来源。
-* 使用本程序必循遵守部署免责声明。使用本程序必循遵守部署服务器所在地、所在国家和用户所在国家的法律法规, 程序作者不对使用者任何不当行为负责。
+# Or for development
+npm run dev
+```
+
+### 6. Set Up Telegram Webhook
+
+After deployment, visit your worker's setup endpoint:
+
+```
+https://your-worker.your-subdomain.workers.dev/setup-webhook
+```
+
+This will configure Telegram to send webhook requests to your worker.
+
+## Project Structure
+
+```
+├── src/
+│   └── index.js          # Main worker code
+├── wrangler.toml         # Cloudflare Workers configuration
+├── package.json          # Project dependencies and scripts
+└── README.md            # This file
+```
+
+## API Endpoints
+
+- **`/webhook`** (POST): Receives Telegram webhook updates
+- **`/setup-webhook`** (GET): Sets up Telegram webhook
+- **`/health`** (GET): Health check endpoint
+- **`/`** (GET): Default welcome message
+
+## Bot Commands
+
+- **`/start`**: Welcome message and bot introduction
+- **`/help`**: Shows available commands and usage information
+
+## Configuration Options
+
+### Environment Variables
+
+- `GEMINI_API_KEY`: Your Google Gemini API key
+- `TELEGRAM_BOT_TOKEN`: Your Telegram bot token
+- `DEBUG`: Enable debug logging (true/false)
+
+### Gemini API Settings
+
+The bot uses the following Gemini configuration:
+
+- **Model**: `gemini-pro`
+- **Temperature**: 0.7 (balanced creativity)
+- **Max Tokens**: 1000
+- **Safety Settings**: Medium threshold for all categories
+
+## Customization
+
+### Modifying Bot Behavior
+
+Edit the `processMessageWithGemini` function in `src/index.js` to customize:
+
+- Response style and tone
+- Context and personality
+- Response length and format
+
+### Adding New Commands
+
+Extend the `handleCommand` function to add new bot commands:
+
+```javascript
+case '/custom':
+  const customMessage = "Your custom response here";
+  await sendTelegramMessage(chatId, customMessage, env);
+  break;
+```
+
+### Adjusting Safety Settings
+
+Modify the `safetySettings` in the Gemini API request to adjust content filtering levels.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Webhook not receiving updates**
+   - Check if the webhook was set correctly
+   - Verify your worker URL is accessible
+   - Ensure HTTPS is enabled
+
+2. **Gemini API errors**
+   - Verify your API key is correct
+   - Check API quota and billing
+   - Ensure Gemini API is enabled in your Google Cloud project
+
+3. **Telegram API errors**
+   - Verify your bot token is correct
+   - Check if the bot is active
+   - Ensure webhook URL is accessible
+
+### Debug Mode
+
+Enable debug logging by setting `DEBUG = "true"` in `wrangler.toml` to see detailed logs in the Cloudflare Workers console.
+
+## Security Considerations
+
+- **API Keys**: Never commit API keys to version control
+- **Webhook Security**: Consider implementing webhook signature verification
+- **Rate Limiting**: Implement rate limiting for production use
+- **Input Validation**: Add additional input validation as needed
+
+## Performance
+
+- **Response Time**: Typically 1-3 seconds depending on Gemini API response time
+- **Concurrent Users**: Cloudflare Workers can handle thousands of concurrent requests
+- **Global Distribution**: Workers run at edge locations worldwide for low latency
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+If you encounter any issues:
+
+1. Check the troubleshooting section above
+2. Review Cloudflare Workers logs
+3. Verify API configurations
+4. Check Telegram Bot API status
+
+## Changelog
+
+### v1.0.0
+- Initial release
+- Basic Gemini AI integration
+- Telegram webhook support
+- Command handling
+- Safety settings and content filtering
