@@ -1,0 +1,7 @@
+name = "gemini-telegram-bot"
+compatibility_date = "2024-06-12"
+
+[vars]
+# Set these in Cloudflare dashboard or via wrangler secret put
+TELEGRAM_BOT_TOKEN = ""
+GEMINI_API_KEY = ""
